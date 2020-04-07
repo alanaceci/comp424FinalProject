@@ -187,7 +187,6 @@ public class Client implements Runnable {
             playerID = board.getIDForName(clr);
             player.setColor(playerID);
             player.gameStarted(msg);
-
             return true;
         } catch (Exception e) {
             System.err.println("Failed to connect: ");

@@ -14,7 +14,7 @@ public class StudentPlayer extends SaboteurPlayer {
      * associate you with your agent. The constructor should do nothing else.
      */
     public StudentPlayer() {
-        super("xxxxxxxxx");
+        super("260715909");
     }
 
     /**
@@ -26,10 +26,11 @@ public class StudentPlayer extends SaboteurPlayer {
         // You probably will make separate functions in MyTools.
         // For example, maybe you'll need to load some pre-processed best opening
         // strategies...
-        MyTools.getSomething();
 
-        // Is random the best you can do?
-        Move myMove = boardState.getRandomMove();
+    	System.out.println("board state turn player" + boardState.getTurnPlayer());
+    	System.out.println("player id: " + this.player_id);
+
+        Move myMove = MyTools.getNextMove(boardState, this.player_id);
 
         // Return your move to be processed by the server.
         return myMove;
