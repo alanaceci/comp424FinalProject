@@ -34,9 +34,10 @@ public class ClonedState extends BoardState {
 	    private ArrayList<SaboteurCard> Deck; //deck form which player pick
 	    public static final int[][] hiddenPos = {{originPos+7,originPos-2},{originPos+7,originPos},{originPos+7,originPos+2}};
 	    protected SaboteurTile[] hiddenCards = new SaboteurTile[3];
-	    private boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed.
-
-
+	    private boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed
+	    public int xDistFromTun = 5;
+	    public int yDistFromTun = 5;
+	    
 	    private int turnPlayer;
 	    private int turnNumber;
 	    private int winner;

@@ -19,19 +19,21 @@ public class MyTools {
 		for (SaboteurMove move : moves) {
 			// play maps and malus's first
 			SaboteurCard curr = move.getCardPlayed();
+			SaboteurCard play = null;
 			if(curr instanceof SaboteurMalus) {
 				System.out.println("Heyyyy we up in malus b");
-				return move;
+				play = curr;
 			}
 			else if (curr instanceof SaboteurMap) {
 				System.out.println("Heyyy we up in mAP b");
-				return move;
+				play = curr;
 			}
-			else {
+			else if(play == null) {
 				// clone boardState 
 				System.out.println("pid" + playerId);
 				ClonedState test = new ClonedState(boardState, myCards, playerId);
-				test.processMove(move);
+				
+//				test.processMove(move);
 //				test.applyMove(move, test);
 				return move;
 			}
@@ -39,7 +41,6 @@ public class MyTools {
 		
 		return boardState.getRandomMove();
 	}
-	
 	public static SaboteurBoardState cloneState (SaboteurBoardState boardState) {
 //		SaboteurBoardState board = new SaboteurBoardState();
 		
