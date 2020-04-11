@@ -12,6 +12,8 @@ public class MCTNode {
 	 MCTNode parent;
 	 ArrayList<MCTNode> children;
 	 int visitCount = 0;
+	 SaboteurMove selectedMove;
+
 	 
 	 public MCTNode(ClonedState state) {
 	        this.state = state;
@@ -71,6 +73,25 @@ public class MCTNode {
 		  int probability = (int) Math.random() * this.getChildren().size();
 		  return this.getChildren().get(probability);
 	  }
+	  
+	  public void setSelectedMove(SaboteurMove m) {
+		  this.selectedMove = m;
+	  }
+	  
+	  public SaboteurMove getSelectedMove() {
+		  return this.selectedMove;
+	  }
+	  
+	  public MCTNode getBestChild() {
+		  MCTNode max = this.children.get(0);
+		  for (MCTNode child : this.children) {
+			  if (child.getVisitCount() > max.getVisitCount()) {
+				  max = child;
+			  }
+		  }
+		  return max;
+	  }
+	  
 
 	}
 

@@ -16,9 +16,11 @@ public class MyTools {
 		ArrayList<SaboteurMove> moves = boardState.getAllLegalMoves();
 		ArrayList<SaboteurCard> myCards = boardState.getCurrentPlayerCards();
 	
-		ClonedState clone = new ClonedState(boardState, myCards, playerId);
+		ClonedState clone = new ClonedState(boardState, playerId);
+		MCTSearch searchForMove = new MCTSearch();
+		SaboteurMove nextMove = searchForMove.getNextMove(clone, playerId, playerId);
 		
-		return boardState.getRandomMove();
+		return nextMove;
 	}
 
 	
