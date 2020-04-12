@@ -215,9 +215,12 @@ public int checkForGameOver() {
 	if(pathToGoldFound(hiddenCards)) {
 		return this.turnPlayer;
 	}
+	if(player1Cards.size() == 0 || player2Cards.size() == 0) {
+		return 2;
+	}
 	return -1;
 }
-// we want a function 
+ 
 public void applyMove(SaboteurMove m) throws IllegalArgumentException {
 	System.out.println("called apply move");
 	 if (!isLegal(m)) {
@@ -227,17 +230,22 @@ public void applyMove(SaboteurMove m) throws IllegalArgumentException {
 	 int[] pos = m.getPosPlayed();
 	 // if it is a tile, place the tile at the position played and remove from legal moves
 	 if(testCard instanceof SaboteurTile){
+		 	System.out.println("placing tile at position now");
 	        this.board[pos[0]][pos[1]] = new SaboteurTile(((SaboteurTile) testCard).getIdx());
 	        this.legal_moves.remove(m);
+	        System.out.println(" returning to MCTSearch now ");
+	        return;
 	    }
 	 else if (testCard instanceof SaboteurBonus) {
 		 if(turnPlayer==1){
 	            player1nbMalus --;
 	            this.legal_moves.remove(m);
+	            return;
 		 }
 		 else{
 	            player2nbMalus --;
 	            this.legal_moves.remove(m);
+	            return;
 		 }
 	 }
 	 
@@ -245,10 +253,12 @@ public void applyMove(SaboteurMove m) throws IllegalArgumentException {
 	        if(turnPlayer==1){
 	            player2nbMalus ++;
 	            this.legal_moves.remove(m);
+	            return;
 	        }
 	        else{
 	            player1nbMalus ++;
 	            this.legal_moves.remove(m);
+	            return;
 	        }
 	    }
 	   
@@ -265,6 +275,7 @@ public void applyMove(SaboteurMove m) throws IllegalArgumentException {
 	                }
 	            }
 	            this.legal_moves.remove(m);
+	            return;
 	        }
 	        else {
 	            for(SaboteurCard card : this.player2Cards) {
@@ -278,6 +289,7 @@ public void applyMove(SaboteurMove m) throws IllegalArgumentException {
 	                }
 	            }
 	            this.legal_moves.remove(m);
+	            return;
 	        }
 	    }
 	 else if (testCard instanceof SaboteurDestroy) {
@@ -305,13 +317,14 @@ public void applyMove(SaboteurMove m) throws IllegalArgumentException {
 	    }
      else if(testCard instanceof SaboteurDrop){
         this.legal_moves.remove(m);
+        return;
      }
 
 	 
 }
 
-
 public void processMove(SaboteurMove m) throws IllegalArgumentException {
+	
     if (!isLegal(m)) {
 
         throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
@@ -507,7 +520,7 @@ private Boolean cardPath(ArrayList<int[]> originTargets,int[] targetPos,Boolean 
         visited.add(visitingPos);
         if(usingCard) addUnvisitedNeighborToQueue(visitingPos,queue,visited,BOARD_SIZE,usingCard);
         else addUnvisitedNeighborToQueue(visitingPos,queue,visited,BOARD_SIZE*3,usingCard);
-        System.out.println(queue.size());
+//        System.out.println(queue.size());
     }
     return false;
 }
@@ -629,7 +642,7 @@ public boolean isLegal(SaboteurMove m) {
 	System.out.println("checking if legal");
 	System.out.println(m.toPrettyString());
     SaboteurCard testCard = m.getCardPlayed();
-    System.out.println("testCardName = " + testCard.getName());
+    System.out.println("CARD WE ARE TRYING TO PLAY = " + testCard.getName());
     int[] pos = m.getPosPlayed();
 
     
@@ -637,12 +650,10 @@ public boolean isLegal(SaboteurMove m) {
     boolean isBlocked;
     
     if(turnPlayer == 1){
-    	System.out.println("hey we are player1");
         hand = this.player1Cards;
         isBlocked= player1nbMalus > 0;
     }
     else {
-    	System.out.println("hey we are player 2");
         hand = this.player2Cards;
         isBlocked= player2nbMalus > 0;
     }
@@ -654,24 +665,21 @@ public boolean isLegal(SaboteurMove m) {
     boolean legal = false;
     
     for(SaboteurCard card : hand){
-    	System.out.println(card.getName());
-    	System.out.println("card is instance of tile" + (card instanceof SaboteurTile));
-    	System.out.println("test card is instance of tile " + (testCard instanceof SaboteurTile));
     	System.out.println();
         System.out.println("test card " + testCard.getName());
-        System.out.println("card" + card.getName());
+        System.out.println("card " + card.getName());
     	
         if (card instanceof SaboteurTile && testCard instanceof SaboteurTile) {
             if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())){
             	System.out.println("checking if tile is legit");
             	boolean x = verifyLegit(((SaboteurTile) card).getPath(),pos);
-            	System.out.println("x =  " + x);
+            	System.out.println("CARD IS LEGIT :  " + x);
                 return x;
             }
             else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())){
             	System.out.println("checking if flipped tile is legit");
             	boolean x = verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos);
-            	System.out.println("x =  " + x);
+            	System.out.println("FLIPPED CARD IS LEGIT =  " + x);
                 return x;
             }
         }
@@ -690,7 +698,7 @@ public boolean isLegal(SaboteurMove m) {
                 if (pos[0] == hiddenPos[j][0] && pos[1] == hiddenPos[j][1]) ph=j;
             }
             if (!this.hiddenRevealed[ph]) {
-                System.out.println("hiddenREveal ed ]");
+                System.out.println("we are able to play map!  returning true, isLegal ");
             	return true;
             }
 
@@ -704,7 +712,7 @@ public boolean isLegal(SaboteurMove m) {
             }
         }
     }
-    System.out.println("we passed none of those checks boi");
+    System.out.println("we passed none of those checks boi, move is NOT LEGAL");
     return legal;
 }
 
@@ -717,7 +725,8 @@ public boolean verifyLegit(int[][] path,int[] pos){
         return false;
     }
     if(board[pos[0]][pos[1]] != null) {
-    	System.out.println("nuttt null");
+    	System.out.println(" pos [0] = " + pos[0] + "pos[1] = " + pos[1]);
+    	System.out.println("there is already a cardddd here ????? ");
     	return false;
     }
 
