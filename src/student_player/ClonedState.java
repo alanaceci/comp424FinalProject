@@ -217,16 +217,103 @@ public int checkForGameOver() {
 	}
 	return -1;
 }
+// we want a function 
+public void applyMove(SaboteurMove m) throws IllegalArgumentException {
+	System.out.println("called apply move");
+	 if (!isLegal(m)) {
+	        throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
+	    }
+	 SaboteurCard testCard = m.getCardPlayed();
+	 int[] pos = m.getPosPlayed();
+	 // if it is a tile, place the tile at the position played and remove from legal moves
+	 if(testCard instanceof SaboteurTile){
+	        this.board[pos[0]][pos[1]] = new SaboteurTile(((SaboteurTile) testCard).getIdx());
+	        this.legal_moves.remove(m);
+	    }
+	 else if (testCard instanceof SaboteurBonus) {
+		 if(turnPlayer==1){
+	            player1nbMalus --;
+	            this.legal_moves.remove(m);
+		 }
+		 else{
+	            player2nbMalus --;
+	            this.legal_moves.remove(m);
+		 }
+	 }
+	 
+	 else if  (testCard instanceof SaboteurMalus){
+	        if(turnPlayer==1){
+	            player2nbMalus ++;
+	            this.legal_moves.remove(m);
+	        }
+	        else{
+	            player1nbMalus ++;
+	            this.legal_moves.remove(m);
+	        }
+	    }
+	   
+	 else if(testCard instanceof SaboteurMap){
+	        if(turnPlayer==1){
+	            for(SaboteurCard card : this.player1Cards) {
+	                if (card instanceof SaboteurMap) {
+	                    int ph = 0;
+	                    for(int j=0;j<3;j++) {
+	                        if (pos[0] == hiddenPos[j][0] && pos[1] == hiddenPos[j][1]) ph=j;
+	                    }
+	                    this.player1hiddenRevealed[ph] = true;
+	                    break; //leave the loop....
+	                }
+	            }
+	            this.legal_moves.remove(m);
+	        }
+	        else {
+	            for(SaboteurCard card : this.player2Cards) {
+	                if (card instanceof SaboteurMap) {
+	                    int ph = 0;
+	                    for(int j=0;j<3;j++) {
+	                        if (pos[0] == hiddenPos[j][0] && pos[1] == hiddenPos[j][1]) ph=j;
+	                    }
+	                    this.player2hiddenRevealed[ph] = true;
+	                    break; //leave the loop....
+	                }
+	            }
+	            this.legal_moves.remove(m);
+	        }
+	    }
+	 else if (testCard instanceof SaboteurDestroy) {
+	        int i = pos[0];
+	        int j = pos[1];
+	        if(turnPlayer==1){
+	            for(SaboteurCard card : this.player1Cards) {
+	                if (card instanceof SaboteurDestroy) {
+	                    this.board[i][j] = null;
+	                    this.legal_moves.remove(m);
+	                    break; //leave the loop....
+	                }
+	            }
+	        }
+	        else{
+	            for(SaboteurCard card : this.player2Cards) {
+	                if (card instanceof SaboteurDestroy) {
+	                    this.board[i][j] = null;
+	                    this.legal_moves.remove(m);
+	                    break; //leave the loop....
+	                }
+	            }
+	        }
+	        
+	    }
+     else if(testCard instanceof SaboteurDrop){
+        this.legal_moves.remove(m);
+     }
+
+	 
+}
 
 
 public void processMove(SaboteurMove m) throws IllegalArgumentException {
-
-    // Verify that a move is legal (if not throw an IllegalArgumentException)
-    // And then execute the move.
-    // Concerning the map observation, the player then has to check by himself the result of its observation.
-    // Note: this method is ran in a BoardState ran by the server as well as in a BoardState ran by the player.
     if (!isLegal(m)) {
-    	System.out.println("whyyyy is this false?" + isLegal(m));
+
         throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
     }
 
@@ -345,7 +432,7 @@ public void processMove(SaboteurMove m) throws IllegalArgumentException {
                 }
             }
         }
-        else {
+        else{
             for(SaboteurCard card : this.player2Cards) {
                 if (card instanceof SaboteurDestroy) {
                     this.player2Cards.remove(card);
@@ -359,12 +446,8 @@ public void processMove(SaboteurMove m) throws IllegalArgumentException {
         if(turnPlayer==1) this.player1Cards.remove(pos[0]);
         else this.player2Cards.remove(pos[0]);
     }
-
-  //  turnPlayer = 1 - turnPlayer; // Swap player
     turnNumber++;
 }
-
-
 
 
 
@@ -522,6 +605,20 @@ public ArrayList<SaboteurMove> getAllLegalMoves() {
     return legalMoves;
 }
 
+public void setHand(ArrayList<SaboteurCard> cards) {
+	if(this.agentNumber == 1) {
+		this.player1Cards = cards;
+	}
+	this.player2Cards = cards;
+}
+
+public ArrayList<SaboteurCard> getHand () {
+	if(this.agentNumber == 1) {
+		return this.player1Cards;
+	}
+	return this.player2Cards;
+}
+
 
 // TAKEN FROM SABOTEURBOARDSTATE 
 public boolean isLegal(SaboteurMove m) {
@@ -529,8 +626,10 @@ public boolean isLegal(SaboteurMove m) {
     // and then the game rules apply.
     // Note that we do not test the flipped version. To test it: use the flipped card in the SaboteurMove object.
 
-	System.out.println("checkng if legalaalll");
+	System.out.println("checking if legal");
+	System.out.println(m.toPrettyString());
     SaboteurCard testCard = m.getCardPlayed();
+    System.out.println("testCardName = " + testCard.getName());
     int[] pos = m.getPosPlayed();
 
     
@@ -538,10 +637,12 @@ public boolean isLegal(SaboteurMove m) {
     boolean isBlocked;
     
     if(turnPlayer == 1){
+    	System.out.println("hey we are player1");
         hand = this.player1Cards;
         isBlocked= player1nbMalus > 0;
     }
     else {
+    	System.out.println("hey we are player 2");
         hand = this.player2Cards;
         isBlocked= player2nbMalus > 0;
     }
@@ -551,9 +652,16 @@ public boolean isLegal(SaboteurMove m) {
         }
     }
     boolean legal = false;
-
+    
     for(SaboteurCard card : hand){
-        if (card instanceof SaboteurTile && testCard instanceof SaboteurTile && !isBlocked) {
+    	System.out.println(card.getName());
+    	System.out.println("card is instance of tile" + (card instanceof SaboteurTile));
+    	System.out.println("test card is instance of tile " + (testCard instanceof SaboteurTile));
+    	System.out.println();
+        System.out.println("test card " + testCard.getName());
+        System.out.println("card" + card.getName());
+    	
+        if (card instanceof SaboteurTile && testCard instanceof SaboteurTile) {
             if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())){
             	System.out.println("checking if tile is legit");
             	boolean x = verifyLegit(((SaboteurTile) card).getPath(),pos);
@@ -581,8 +689,11 @@ public boolean isLegal(SaboteurMove m) {
             for(int j=0;j<3;j++) {
                 if (pos[0] == hiddenPos[j][0] && pos[1] == hiddenPos[j][1]) ph=j;
             }
-            if (!this.hiddenRevealed[ph])
-                return true;
+            if (!this.hiddenRevealed[ph]) {
+                System.out.println("hiddenREveal ed ]");
+            	return true;
+            }
+
         }
         else if (card instanceof SaboteurDestroy && testCard instanceof SaboteurDestroy) {
             int i = pos[0];
@@ -593,11 +704,13 @@ public boolean isLegal(SaboteurMove m) {
             }
         }
     }
+    System.out.println("we passed none of those checks boi");
     return legal;
 }
 
 // TAKEN FROM SABOTEURBOARDSTATE 
 public boolean verifyLegit(int[][] path,int[] pos){
+	System.out.println("verifying tile is legit");
     // Given a tile's path, and a position to put this path, verify that it respects the rule of positionning;
     if (!(0 <= pos[0] && pos[0] < BOARD_SIZE && 0 <= pos[1] && pos[1] < BOARD_SIZE)) {
     	System.out.println("out of bounds of board /: ");

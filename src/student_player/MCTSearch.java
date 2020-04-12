@@ -1,5 +1,7 @@
 package student_player;
 import Saboteur.SaboteurMove;
+import Saboteur.cardClasses.SaboteurCard;
+
 import java.util.*;
 import java.math.*;
 
@@ -51,14 +53,18 @@ public class MCTSearch {
     }
     
     private void expansion(MCTNode node) {
+    	
         ArrayList<SaboteurMove> possibleMoves = node.getState().getLegalMoves();
         ArrayList<ClonedState> possibleStates = new ArrayList<ClonedState>();
         // generate new states by playing move
+        ArrayList<SaboteurCard> hand = node.getState().getHand();
         for(SaboteurMove move : possibleMoves) {
+        	System.out.println("ENTERED NEW MOVE!!!!!");
         	System.out.println(move.toPrettyString());
         	ClonedState s = new ClonedState(node.getState());
+        	s.setHand(hand);
         	System.out.println("cloned copy contains moveee" + s.getLegalMoves().contains(move));
-        	s.processMove(move);
+        	s.applyMove(move);
         	possibleStates.add(s);
         }
         // expand tree by generating moves 

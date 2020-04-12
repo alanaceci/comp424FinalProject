@@ -29,7 +29,8 @@ public class StudentPlayer extends SaboteurPlayer {
 
     	System.out.println("board state turn player" + boardState.getTurnPlayer());
     	System.out.println("player id: " + this.player_id);
-
+    	
+    	System.out.println("playerId" + this.player_id);
         Move myMove = MyTools.getNextMove(boardState, this.player_id);
 
         // Return your move to be processed by the server.
