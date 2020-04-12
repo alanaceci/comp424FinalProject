@@ -58,7 +58,8 @@ public class MCTSearch {
         ArrayList<ClonedState> possibleStates = new ArrayList<ClonedState>();
         // generate new states by playing move
         ArrayList<SaboteurCard> hand = node.getState().getHand();
-        for(SaboteurMove move : possibleMoves) {
+        for(int i=0; i<possibleMoves.size(); i++) {
+        	SaboteurMove move = possibleMoves.get(i);
         	System.out.println("ENTERED NEW MOVE!!!!!");
         	System.out.println(move.toPrettyString());
         	ClonedState s = new ClonedState(node.getState());
@@ -91,12 +92,19 @@ public class MCTSearch {
     		int probability = (int) Math.random() * state.getLegalMoves().size();
     		System.out.println(state.getLegalMoves().size());
     		System.out.println(probability);
-    		SaboteurMove move = state.getLegalMoves().get(probability);
-    		node.setSelectedMove(move);
-    		state.processMove(move);
-    		// check if move lead to terminal state
-    		game = state.checkForGameOver();
+    		if(state.getLegalMoves().size() <1) {
+    			break;
     		}
+    		else {
+    			SaboteurMove move = state.getLegalMoves().get(probability);
+        		node.setSelectedMove(move);
+        		state.applyMove(move);
+        		System.out.println("\n\nGAME: " + game + "\n\n");
+        		// check if move lead to terminal state
+    		}
+    		game = state.checkForGameOver();
+    		
+    	}
     		
     	System.out.println("WINNER IS: " + game);
     	
