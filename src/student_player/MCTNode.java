@@ -2,12 +2,16 @@ package student_player;
 import java.util.*;
 
 import Saboteur.SaboteurMove;
+import Saboteur.cardClasses.SaboteurDrop;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+/* Code structure adapted from https://www.baeldung.com/java-monte-carlo-tree-search, MCTS for Tic Tac Toe */
+
 public class MCTNode {
+	 int id;
 	 ClonedState state;
 	 MCTNode parent;
 	 ArrayList<MCTNode> children;
@@ -18,24 +22,25 @@ public class MCTNode {
 	 public MCTNode(ClonedState state) {
 	        this.state = state;
 	        children = new ArrayList<>();
+	       
 	    }
 
-	 public MCTNode(ClonedState state, ArrayList<MCTNode> children, MCTNode parent) {
-	        this.state = state;
-	        this.parent = parent;
-	        this.children = children;
-	    }
-
-	    public MCTNode(MCTNode n) {
+	   public MCTNode(MCTNode n) {
 	        this.children = new ArrayList<>();
-	        this.state = new ClonedState(n.getState());
-	        if (n.getParent() != null)
+	        this.state = n.getState();
+	        if (n.getParent() != null) {
 	            this.parent = n.getParent();
-	        ArrayList<MCTNode> childArray = n.getChildren();
-	        for (MCTNode child : children) {
-	            this.children.add(new MCTNode(child));
 	        }
+	        this.children = (ArrayList<MCTNode>) n.getChildren().clone();
 	    }
+	    
+	   public void setId (int n) {
+		   this.id= n;
+	   }
+	   public String toString() {
+		   return "Id: " + this.id + " and selectedMove " + this.selectedMove;
+		 
+	   }
 	 
 	  public ClonedState getState() {
 		  return this.state;
@@ -50,6 +55,7 @@ public class MCTNode {
 	  }
 	  
 	  public void updateVisitCount() {
+		  System.out.println("adding to visit count");
 		  this.visitCount++;
 	  }
 	  
@@ -75,6 +81,7 @@ public class MCTNode {
 	  }
 	  
 	  public void setSelectedMove(SaboteurMove m) {
+		  System.out.println("SETTING SELECTED MOVE OF NODE " + this.id + " TO " + m.toPrettyString());
 		  this.selectedMove = m;
 	  }
 	  
@@ -83,29 +90,21 @@ public class MCTNode {
 	  }
 	  
 	  public MCTNode getBestChild() {
+		  if(this.children.size() == 0) {
+			  System.out.println("found no children / : ");
+			  return this;
+		  }
 		  MCTNode max = this.children.get(0);
 		  for (MCTNode child : this.children) {
 			  if (child.getVisitCount() > max.getVisitCount()) {
+				  System.out.println("found most visited child");
+				  if(child.getSelectedMove().getCardPlayed() instanceof SaboteurDrop) {
+					  continue;
+				  }
 				  max = child;
 			  }
 		  }
 		  return max;
 	  }
-	  
 
 	}
-
-
-//	public int wins;
-//	public int losses;
-//	public ArrayList<SaboteurMove> moves;
-//	public MCTNode parent;
-//	public ArrayList<MCTNode> nextMoves = new ArrayList<MCTNode>();
-//	
-//	
-//	public MCTNode(int win, int loss, ArrayList<SaboteurMove> nextIS) {
-//		this.wins = win;
-//		this.losses = loss;
-//		this.moves = nextIS;
-//	}
-//}

@@ -35,7 +35,7 @@ private boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1
 
 private int turnPlayer;
 private int turnNumber;
-private int winner;
+private int winner = Integer.MAX_VALUE - 1;
 private Random rand;
 
 public int playCount;
@@ -46,7 +46,6 @@ private ArrayList<SaboteurMove> legal_moves = new ArrayList<>();
 
 // constructor to clone state from SaboteurBoardState 
 public ClonedState(SaboteurBoardState state, int agentNumber) {
-	System.out.println("heeeelllloooooo");
 		// copy board over from state
 		this.board = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
 		for (int i=0; i<board.length; i++) {
@@ -73,18 +72,18 @@ public ClonedState(SaboteurBoardState state, int agentNumber) {
 		
 		// copy player cards
 		if(agentNumber == 1) {
-			this.player1Cards = state.getCurrentPlayerCards();
+			this.player1Cards = (ArrayList<SaboteurCard>) state.getCurrentPlayerCards().clone();
 			for (SaboteurCard card : this.player1Cards) {
 				Deck.remove(card);
 			}
-			this.player2Cards = Deck;
+			this.player2Cards = (ArrayList<SaboteurCard>) Deck.clone();
 		}
 		else {
-			this.player2Cards = state.getCurrentPlayerCards();
+			this.player2Cards = (ArrayList<SaboteurCard>) state.getCurrentPlayerCards().clone();
 			for (SaboteurCard card : this.player2Cards) {
 				Deck.remove(card);
 			}
-			this.player1Cards = Deck;
+			this.player1Cards = (ArrayList<SaboteurCard>) Deck.clone();
 		}
 		
 		this.rand = new Random(2019);
@@ -92,7 +91,7 @@ public ClonedState(SaboteurBoardState state, int agentNumber) {
 	    this.turnPlayer = state.getTurnPlayer();
 	    this.turnNumber = state.getTurnNumber();
 	    this.agentNumber = agentNumber;
-	    this.legal_moves = state.getAllLegalMoves();
+	    this.legal_moves = (ArrayList<SaboteurMove>) state.getAllLegalMoves().clone();
 
 	}
 
@@ -124,18 +123,18 @@ public ClonedState (ClonedState state) {
 	
 	// copy player cards
 	if(agentNumber == 1) {
-		this.player1Cards = state.getPlayer1Cards();
+		this.player1Cards = (ArrayList<SaboteurCard>) state.getPlayer1Cards().clone();
 		for (SaboteurCard card : this.player1Cards) {
 			Deck.remove(card);
 		}
-		this.player1Cards = Deck;
+		this.player2Cards = (ArrayList<SaboteurCard>) Deck.clone();
 	}
 	else {
-		this.player2Cards = state.getPlayer2Cards();
+		this.player2Cards = (ArrayList<SaboteurCard>) state.getPlayer2Cards().clone();
 		for (SaboteurCard card : this.player2Cards) {
 			Deck.remove(card);
 		}
-		this.player1Cards = Deck;
+		this.player1Cards = (ArrayList<SaboteurCard>) Deck.clone();
 	}
 	
 	this.rand = new Random(2019);
@@ -144,9 +143,11 @@ public ClonedState (ClonedState state) {
     this.turnNumber = state.getTurnNumber();
     this.agentNumber = state.getAgentNumber();
     this.winScore = state.getWinScore();
-    this.legal_moves = state.getLegalMoves();
+    this.legal_moves = (ArrayList<SaboteurMove>) state.getLegalMoves().clone();
 	
 }
+
+
 
 public ArrayList<SaboteurMove> getLegalMoves () {
 	return this.legal_moves;
@@ -212,28 +213,32 @@ public void setTurnPlayer() {
 }
 
 public int checkForGameOver() {
-	if(pathToGoldFound(hiddenCards)) {
-		return this.turnPlayer;
+	if(pathToGoldFound(new SaboteurTile[]{new SaboteurTile("nugget"),new SaboteurTile("hidden1"),new SaboteurTile("hidden2")})) {
+		System.out.println("path to gold found");
+		this.winner = this.turnPlayer;
 	}
-	if(player1Cards.size() == 0 || player2Cards.size() == 0) {
-		return 2;
+	if(gameOver()) {
+		this.winner = 2;
 	}
-	return -1;
+	return this.winner;
+}
+
+
+public boolean gameOver() {
+    return this.player1Cards.size()==0 || this.player2Cards.size()==0 || this.winner != Integer.MAX_VALUE - 1;
 }
  
 public void applyMove(SaboteurMove m) throws IllegalArgumentException {
-	System.out.println("called apply move");
 	 if (!isLegal(m)) {
-	        throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
+	        this.legal_moves.remove(m);
+	        return;
 	    }
 	 SaboteurCard testCard = m.getCardPlayed();
 	 int[] pos = m.getPosPlayed();
 	 // if it is a tile, place the tile at the position played and remove from legal moves
 	 if(testCard instanceof SaboteurTile){
-		 	System.out.println("placing tile at position now");
 	        this.board[pos[0]][pos[1]] = new SaboteurTile(((SaboteurTile) testCard).getIdx());
 	        this.legal_moves.remove(m);
-	        System.out.println(" returning to MCTSearch now ");
 	        return;
 	    }
 	 else if (testCard instanceof SaboteurBonus) {
@@ -463,7 +468,6 @@ public void processMove(SaboteurMove m) throws IllegalArgumentException {
 }
 
 
-
 // MODIFIED FROM SABOTEURBOARDSTATE
 private boolean pathToGoldFound(SaboteurTile[] objectives){
     this.getHiddenIntBoard(); //update the int board.
@@ -493,11 +497,11 @@ private boolean pathToGoldFound(SaboteurTile[] objectives){
             //get the target position in 0-1 coordinate
             int[] targetPos2 = {targetPos[0]*3+1, targetPos[1]*3+1};
             if (cardPath(originTargets2, targetPos2, false)) {
-                System.out.println("0-1 path found");
+               // System.out.println("0-1 path found");
                 atLeastOnefound =true;
             }
             else{
-                System.out.println("0-1 path was not found");
+                //System.out.println("0-1 path was not found");
             }
         }
     }
@@ -557,15 +561,18 @@ private boolean containsIntArray(ArrayList<int[]> a,int[] o){ //the .equals used
 
 // TAKEN FROM SABOTEURBOARDSTATE 
 public ArrayList<SaboteurMove> getAllLegalMoves() {
+	System.out.println("getting all legal Moves");
     // Given the current player hand, gives back all legal moves he can play.
     ArrayList<SaboteurCard> hand;
     boolean isBlocked;
     if(turnPlayer == 1){
         hand = this.player1Cards;
+        System.out.println("hand length of player 1 " + hand.size());
         isBlocked= player1nbMalus > 0;
     }
     else {
         hand = this.player2Cards;
+        System.out.println("hand length of player 2 " + hand.size());
         isBlocked= player2nbMalus > 0;
     }
 
@@ -573,8 +580,10 @@ public ArrayList<SaboteurMove> getAllLegalMoves() {
 
     for(SaboteurCard card : hand){
         if( card instanceof SaboteurTile && !isBlocked) {
+        	System.out.println("checking tiles");
             ArrayList<int[]> allowedPositions = possiblePositions((SaboteurTile)card);
             for(int[] pos:allowedPositions){
+            	System.out.println("adding move");
                 legalMoves.add(new SaboteurMove(card,pos[0],pos[1],turnPlayer));
             }
             //if the card can be flipped, we also had legal moves where the card is flipped;
@@ -582,6 +591,7 @@ public ArrayList<SaboteurMove> getAllLegalMoves() {
                 SaboteurTile flippedCard = ((SaboteurTile)card).getFlipped();
                 ArrayList<int[]> allowedPositionsflipped = possiblePositions(flippedCard);
                 for(int[] pos:allowedPositionsflipped){
+                	System.out.println("adding flipped move");
                     legalMoves.add(new SaboteurMove(flippedCard,pos[0],pos[1],turnPlayer));
                 }
             }
@@ -639,10 +649,7 @@ public boolean isLegal(SaboteurMove m) {
     // and then the game rules apply.
     // Note that we do not test the flipped version. To test it: use the flipped card in the SaboteurMove object.
 
-	System.out.println("checking if legal");
-	System.out.println(m.toPrettyString());
     SaboteurCard testCard = m.getCardPlayed();
-    System.out.println("CARD WE ARE TRYING TO PLAY = " + testCard.getName());
     int[] pos = m.getPosPlayed();
 
     
@@ -665,21 +672,14 @@ public boolean isLegal(SaboteurMove m) {
     boolean legal = false;
     
     for(SaboteurCard card : hand){
-    	System.out.println();
-        System.out.println("test card " + testCard.getName());
-        System.out.println("card " + card.getName());
     	
         if (card instanceof SaboteurTile && testCard instanceof SaboteurTile) {
             if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())){
-            	System.out.println("checking if tile is legit");
             	boolean x = verifyLegit(((SaboteurTile) card).getPath(),pos);
-            	System.out.println("CARD IS LEGIT :  " + x);
                 return x;
             }
             else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())){
-            	System.out.println("checking if flipped tile is legit");
             	boolean x = verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos);
-            	System.out.println("FLIPPED CARD IS LEGIT =  " + x);
                 return x;
             }
         }
@@ -698,7 +698,6 @@ public boolean isLegal(SaboteurMove m) {
                 if (pos[0] == hiddenPos[j][0] && pos[1] == hiddenPos[j][1]) ph=j;
             }
             if (!this.hiddenRevealed[ph]) {
-                System.out.println("we are able to play map!  returning true, isLegal ");
             	return true;
             }
 
@@ -712,21 +711,16 @@ public boolean isLegal(SaboteurMove m) {
             }
         }
     }
-    System.out.println("we passed none of those checks boi, move is NOT LEGAL");
     return legal;
 }
 
 // TAKEN FROM SABOTEURBOARDSTATE 
 public boolean verifyLegit(int[][] path,int[] pos){
-	System.out.println("verifying tile is legit");
     // Given a tile's path, and a position to put this path, verify that it respects the rule of positionning;
     if (!(0 <= pos[0] && pos[0] < BOARD_SIZE && 0 <= pos[1] && pos[1] < BOARD_SIZE)) {
-    	System.out.println("out of bounds of board /: ");
         return false;
     }
     if(board[pos[0]][pos[1]] != null) {
-    	System.out.println(" pos [0] = " + pos[0] + "pos[1] = " + pos[1]);
-    	System.out.println("there is already a cardddd here ????? ");
     	return false;
     }
 
@@ -798,7 +792,6 @@ public boolean verifyLegit(int[][] path,int[] pos){
     else numberOfEmptyAround+=1;
 
     if(numberOfEmptyAround==requiredEmptyAround)  {
-    	System.out.println("num of empty around is not the require num");
     	return false;
     }
 
@@ -825,6 +818,11 @@ public ArrayList<int[]> possiblePositions(SaboteurTile card) {
         }
     }
     return possiblePos;
+}
+
+public int getNbMalus(int playerNb){
+    if(playerNb==1) return this.player1nbMalus;
+    return this.player2nbMalus;
 }
 
 

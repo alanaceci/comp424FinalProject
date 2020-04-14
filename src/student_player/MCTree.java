@@ -1,5 +1,6 @@
 package student_player;
 
+/* Code structure adapted from https://www.baeldung.com/java-monte-carlo-tree-search, MCTS for Tic Tac Toe */
 
 public class MCTree {
 	public MCTNode root;
