@@ -17,21 +17,20 @@ public class MCTNode {
 	 ArrayList<MCTNode> children;
 	 int visitCount = 0;
 	 SaboteurMove selectedMove;
-
 	 
 	 public MCTNode(ClonedState state) {
-	        this.state = state;
+	        this.state = new ClonedState(state);
 	        children = new ArrayList<>();
 	       
 	    }
 
 	   public MCTNode(MCTNode n) {
 	        this.children = new ArrayList<>();
-	        this.state = n.getState();
+	        this.state = new ClonedState(n.getState());
 	        if (n.getParent() != null) {
 	            this.parent = n.getParent();
 	        }
-	        this.children = (ArrayList<MCTNode>) n.getChildren().clone();
+	        this.children = (ArrayList<MCTNode>) n.getChildren();
 	    }
 	    
 	   public void setId (int n) {
@@ -47,7 +46,7 @@ public class MCTNode {
 	  }
 	  
 	  public void setState(ClonedState s) {
-		  this.state = s;
+		  this.state = new ClonedState(s);
 	  }
 	  
 	  public int getVisitCount() {
