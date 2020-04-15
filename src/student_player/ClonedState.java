@@ -35,7 +35,7 @@ private boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1
 
 private int turnPlayer;
 private int turnNumber;
-private int winner = Integer.MAX_VALUE - 1;
+private int winner = Integer.MAX_VALUE-1;
 private Random rand;
 
 public int playCount;
@@ -87,7 +87,7 @@ public ClonedState(SaboteurBoardState state, int agentNumber) {
 		}
 		
 		this.rand = new Random(2019);
-	    this.winner = state.getWinner();
+	    this.winner = Integer.MAX_VALUE;
 	    this.turnPlayer = state.getTurnPlayer();
 	    this.turnNumber = state.getTurnNumber();
 	    this.agentNumber = agentNumber;
@@ -124,17 +124,11 @@ public ClonedState (ClonedState state) {
 	// copy player cards
 	if(agentNumber == 1) {
 		this.player1Cards = (ArrayList<SaboteurCard>) state.getPlayer1Cards().clone();
-		for (SaboteurCard card : this.player1Cards) {
-			Deck.remove(card);
-		}
-		this.player2Cards = (ArrayList<SaboteurCard>) Deck.clone();
+		this.player2Cards = (ArrayList<SaboteurCard>) state.getPlayer2Cards().clone();
 	}
 	else {
 		this.player2Cards = (ArrayList<SaboteurCard>) state.getPlayer2Cards().clone();
-		for (SaboteurCard card : this.player2Cards) {
-			Deck.remove(card);
-		}
-		this.player1Cards = (ArrayList<SaboteurCard>) Deck.clone();
+		this.player1Cards = (ArrayList<SaboteurCard>) state.getPlayer1Cards().clone();
 	}
 	
 	this.rand = new Random(2019);
@@ -217,7 +211,7 @@ public int checkForGameOver() {
 		System.out.println("path to gold found");
 		this.winner = this.turnPlayer;
 	}
-	if(gameOver()) {
+	if(gameOver() && this.winner == Integer.MAX_VALUE-1 ) {
 		this.winner = 2;
 	}
 	return this.winner;
@@ -561,18 +555,15 @@ private boolean containsIntArray(ArrayList<int[]> a,int[] o){ //the .equals used
 
 // TAKEN FROM SABOTEURBOARDSTATE 
 public ArrayList<SaboteurMove> getAllLegalMoves() {
-	System.out.println("getting all legal Moves");
     // Given the current player hand, gives back all legal moves he can play.
     ArrayList<SaboteurCard> hand;
     boolean isBlocked;
     if(turnPlayer == 1){
         hand = this.player1Cards;
-        System.out.println("hand length of player 1 " + hand.size());
         isBlocked= player1nbMalus > 0;
     }
     else {
         hand = this.player2Cards;
-        System.out.println("hand length of player 2 " + hand.size());
         isBlocked= player2nbMalus > 0;
     }
 
@@ -580,10 +571,8 @@ public ArrayList<SaboteurMove> getAllLegalMoves() {
 
     for(SaboteurCard card : hand){
         if( card instanceof SaboteurTile && !isBlocked) {
-        	System.out.println("checking tiles");
             ArrayList<int[]> allowedPositions = possiblePositions((SaboteurTile)card);
             for(int[] pos:allowedPositions){
-            	System.out.println("adding move");
                 legalMoves.add(new SaboteurMove(card,pos[0],pos[1],turnPlayer));
             }
             //if the card can be flipped, we also had legal moves where the card is flipped;
@@ -591,7 +580,6 @@ public ArrayList<SaboteurMove> getAllLegalMoves() {
                 SaboteurTile flippedCard = ((SaboteurTile)card).getFlipped();
                 ArrayList<int[]> allowedPositionsflipped = possiblePositions(flippedCard);
                 for(int[] pos:allowedPositionsflipped){
-                	System.out.println("adding flipped move");
                     legalMoves.add(new SaboteurMove(flippedCard,pos[0],pos[1],turnPlayer));
                 }
             }

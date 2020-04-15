@@ -26,11 +26,6 @@ public class StudentPlayer extends SaboteurPlayer {
         // You probably will make separate functions in MyTools.
         // For example, maybe you'll need to load some pre-processed best opening
         // strategies...
-
-    	System.out.println("board state turn player" + boardState.getTurnPlayer());
-    	System.out.println("player id: " + this.player_id);
-    	
-    	System.out.println("playerId" + this.player_id);
         Move myMove = MyTools.getNextMove(boardState, this.player_id);
 
         // Return your move to be processed by the server.

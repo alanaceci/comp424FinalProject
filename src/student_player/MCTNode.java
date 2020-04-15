@@ -17,14 +17,17 @@ public class MCTNode {
 	 ArrayList<MCTNode> children;
 	 int visitCount = 0;
 	 SaboteurMove selectedMove;
+	 int agentNumber;
 	 
 	 public MCTNode(ClonedState state) {
 	        this.state = new ClonedState(state);
 	        children = new ArrayList<>();
+	        this.agentNumber = state.getAgentNumber();
 	       
 	    }
 
 	   public MCTNode(MCTNode n) {
+		   	this.agentNumber = n.getState().getAgentNumber();
 	        this.children = new ArrayList<>();
 	        this.state = new ClonedState(n.getState());
 	        if (n.getParent() != null) {
@@ -54,7 +57,6 @@ public class MCTNode {
 	  }
 	  
 	  public void updateVisitCount() {
-		  System.out.println("adding to visit count");
 		  this.visitCount++;
 	  }
 	  
@@ -80,7 +82,6 @@ public class MCTNode {
 	  }
 	  
 	  public void setSelectedMove(SaboteurMove m) {
-		  System.out.println("SETTING SELECTED MOVE OF NODE " + this.id + " TO " + m.toPrettyString());
 		  this.selectedMove = m;
 	  }
 	  
@@ -90,14 +91,12 @@ public class MCTNode {
 	  
 	  public MCTNode getBestChild() {
 		  if(this.children.size() == 0) {
-			  System.out.println("found no children / : ");
 			  return this;
 		  }
 		  MCTNode max = this.children.get(0);
 		  for (MCTNode child : this.children) {
 			  if (child.getVisitCount() > max.getVisitCount()) {
-				  System.out.println("found most visited child");
-				  if(child.getSelectedMove().getCardPlayed() instanceof SaboteurDrop) {
+				  if(child.getState().getTurnPlayer() != agentNumber || child.getSelectedMove().getCardPlayed() instanceof SaboteurDrop) {
 					  continue;
 				  }
 				  max = child;
