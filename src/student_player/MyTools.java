@@ -33,7 +33,7 @@ public class MyTools {
 		ClonedState clone = new ClonedState(boardState, playerId);
 		MCTSearch searchForMove = new MCTSearch();
 		SaboteurMove nextMove = searchForMove.getNextMove(clone, playerId, playerId);
-		System.out.println("RETURNING MOVE: " + nextMove.toPrettyString());
+		//System.out.println("RETURNING MOVE: " + nextMove.toPrettyString());
 		return nextMove;
 	}
 

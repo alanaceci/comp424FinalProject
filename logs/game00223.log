@@ -1,0 +1,13 @@
+# Server version 0.08 running on DESKTOP-6KJFBSD:8123
+# Game ID: 223
+# Board class: Saboteur.SaboteurBoard
+# Timeout: 20000
+# First Move Timeout: 30000
+# Date: Wed Apr 15 21:03:15 EDT 2020
+# Starting at move 3
+# Player 1: Player-0, '260715909', running on DESKTOP-6KJFBSD
+# Player 2: Player-1, '260715909', running on DESKTOP-6KJFBSD
+START Player-0 260715909
+START Player-1 260715909
+GAMEOVER SERVER ERROR UNDECIDED
+# Game ended: Wed Apr 15 21:03:15 EDT 2020

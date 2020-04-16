@@ -35,7 +35,7 @@ private boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1
 
 private int turnPlayer;
 private int turnNumber;
-private int winner = Integer.MAX_VALUE-1;
+private int winner;
 private Random rand;
 
 public int playCount;
@@ -87,7 +87,7 @@ public ClonedState(SaboteurBoardState state, int agentNumber) {
 		}
 		
 		this.rand = new Random(2019);
-	    this.winner = Integer.MAX_VALUE;
+	    this.winner = Integer.MAX_VALUE-1;
 	    this.turnPlayer = state.getTurnPlayer();
 	    this.turnNumber = state.getTurnNumber();
 	    this.agentNumber = agentNumber;
@@ -208,7 +208,7 @@ public void setTurnPlayer() {
 
 public int checkForGameOver() {
 	if(pathToGoldFound(new SaboteurTile[]{new SaboteurTile("nugget"),new SaboteurTile("hidden1"),new SaboteurTile("hidden2")})) {
-		System.out.println("path to gold found");
+		//System.out.println("path to gold found");
 		this.winner = this.turnPlayer;
 	}
 	if(gameOver() && this.winner == Integer.MAX_VALUE-1 ) {
@@ -219,7 +219,7 @@ public int checkForGameOver() {
 
 
 public boolean gameOver() {
-    return this.player1Cards.size()==0 || this.player2Cards.size()==0 || this.winner != Integer.MAX_VALUE - 1;
+    return this.player1Cards.size()==0 || this.player2Cards.size()==0;
 }
  
 public void applyMove(SaboteurMove m) throws IllegalArgumentException {
