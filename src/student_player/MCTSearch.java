@@ -60,6 +60,7 @@ public class MCTSearch {
         else {
         MCTNode node = rootNode;
         while (node.getChildren().size() != 0) {
+        	// employing UCT function, determining best node based on UCB1 equation
         	node = UpperConfidenceTree.findBest(node);
         	
         }
@@ -70,7 +71,6 @@ public class MCTSearch {
     private void expansion(MCTNode node, int agentNumber) {
     	
         ArrayList<SaboteurMove> possibleMoves = (ArrayList<SaboteurMove>) node.getState().getLegalMoves().clone();
-       // ArrayList<ClonedState> possibleStates = new ArrayList<ClonedState>();
         // generate new states by playing move
         ArrayList<SaboteurCard> hand = node.getState().getHand();
         int length = possibleMoves.size();
@@ -80,6 +80,7 @@ public class MCTSearch {
         	int opponent = 1 - agentNumber;
         	SaboteurCard card = move.getCardPlayed();
     		int[] movePos = move.getPosPlayed();
+    		// using game strategy to expand useful nodes
     		if(card instanceof SaboteurBonus && !(s.getNbMalus(opponent) > 0)) {
     			continue;
     		}
@@ -87,8 +88,7 @@ public class MCTSearch {
     			continue;
     		}
     		if(card instanceof SaboteurTile) {
-    			if(movePos[0] < 5 || movePos[1] > 8 || movePos[1] < 2) {
-    				//System.out.println("HEEEEEEEEEEEEEELLLLLLLLLPPPPPPPPP");
+    			if(movePos[0] < 6 || movePos[1] > 7 || movePos[1] < 3) {
         			continue;
         		}
     			if(card.getName().equals("Tile:1")) {
@@ -179,6 +179,7 @@ public class MCTSearch {
     		
     		SaboteurCard card = move.getCardPlayed();
     		System.out.println("CARD PLAYED FROM MOVE:" + card.getName());
+    		//using game strategy to simulate intelligent game play
     		int[] movePos = move.getPosPlayed();
     		if(card instanceof SaboteurBonus && !(state.getNbMalus(opponent) > 0)) {
     			legalMoves.remove(move);
@@ -189,7 +190,7 @@ public class MCTSearch {
     			continue;
     		}
     		if(card instanceof SaboteurTile) {
-    			if(movePos[0] < 5 || movePos[1] > 8 || movePos[1] < 2) {
+    			if(movePos[0] < 6 || movePos[1] > 7 || movePos[1] < 3) {
         			legalMoves.remove(move);
         			//System.out.println("HEEEEEEEEEEEEEELLLLLLLLLPPPPPPPPP");
         			continue;
