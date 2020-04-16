@@ -40,6 +40,7 @@ public class MCTSearch {
     			backPropogation(explore, result);
     		} 		
     		else if(n.getState().getWinner() <=2) {
+    			// means that the UCT node produced is the end of a game
     			break;
     		}
     		
@@ -86,7 +87,8 @@ public class MCTSearch {
     			continue;
     		}
     		if(card instanceof SaboteurTile) {
-    			if(movePos[1] < 5) {
+    			if(movePos[0] < 5 || movePos[1] > 8 || movePos[1] < 2) {
+    				//System.out.println("HEEEEEEEEEEEEEELLLLLLLLLPPPPPPPPP");
         			continue;
         		}
     			if(card.getName().equals("Tile:1")) {
@@ -187,8 +189,9 @@ public class MCTSearch {
     			continue;
     		}
     		if(card instanceof SaboteurTile) {
-    			if(movePos[1] < 5) {
+    			if(movePos[0] < 5 || movePos[1] > 8 || movePos[1] < 2) {
         			legalMoves.remove(move);
+        			//System.out.println("HEEEEEEEEEEEEEELLLLLLLLLPPPPPPPPP");
         			continue;
         		}
     			if(card.getName().equals("Tile:1")) {
